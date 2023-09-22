@@ -10,6 +10,13 @@
 
 <script>
     import Select from "./Select.svelte";
+    import DatePicker from "./DatePicker.svelte";
+
+    let currentDate = new Date();
+
+    const onDateChange = d => {
+        currentDate = d.detail;
+    };
 
     export let cities;
 
@@ -22,8 +29,18 @@
         <h3 class="title">
             Даты
         </h3>
+        <DatePicker
+                on:datechange={onDateChange}
+                selected={currentDate}
+                isAllowed={date => {
+                    const millisecs = date.getTime();
+                    if (millisecs + 25 * 3600 * 1000 < Date.now()) return false;
+                    if (millisecs > Date.now() + 3600 * 24 * 45 * 1000) return false;
+                    return true;
+                }}
+        />
     </div>
-    <button class="button">
+    <button class="btn">
         Найти
     </button>
 </div>
@@ -53,7 +70,7 @@
         line-height: normal;
         margin: 0 0 10px 0;
     }
-    .button {
+    .btn {
         border: none;
         height: 47px;
         color: #F2F2F2;
@@ -62,13 +79,5 @@
         border-radius: 5px;
         justify-content: center;
         align-items: center;
-    }
-    .select-block {
-        display: flex;
-        flex-direction: column;
-    }
-    .select {
-        position: relative;
-        /*padding: 15px 18px;*/
     }
 </style>
