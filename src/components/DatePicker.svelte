@@ -1,75 +1,28 @@
 <script>
-    import { createEventDispatcher } from "svelte";
+    import {createEventDispatcher, getContext} from "svelte";
     import Calender from "./Calender.svelte";
     import { getMonthName } from "./date-time.js";
     import calendar from "../assets/calendar.svg";
     import arrowLeft from "../assets/arrow-left.svg";
     import arrowRight from "../assets/arrow-right.svg";
+    import separator from "../assets/separator.svg";
+    import { formatedSelected } from "./date-time.js";
 
     const dispatch = createEventDispatcher();
 
     // props
     export let isAllowed = () => true;
     export let selected = new Date();
+    export let selectedLast = new Date();
 
-    const formatedSelected = (date) => {
-        console.log(date);
-        const dateArr = date.split(" ");
-        console.log(dateArr)
-        const dayWeek = () => {
-            switch(dateArr[0]) {
-                case "Mon":
-                    return "Пт"
-                case "Tue":
-                    return "Вт"
-                case "Wed":
-                    return "Ср"
-                case "Thu":
-                    return "Чт"
-                case "Fri":
-                    return "Пт"
-                case "Sat":
-                    return "Сб"
-                case "Sun":
-                    return "Вс"
-                default:
-                    return dateArr[0]
-            }
-        }
-        const day = dateArr[2];
-        const month = () => {
-            switch(dateArr[1]) {
-                case "Jan":
-                    return "01"
-                case "Feb":
-                    return "02"
-                case "Mar":
-                    return "03"
-                case "Apr":
-                    return "04"
-                case "May":
-                    return "05"
-                case "June":
-                    return "06"
-                case "July":
-                    return "07"
-                case "Aug":
-                    return "08"
-                case "Sep":
-                    return "09"
-                case "Oct":
-                    return "10"
-                case "Nov":
-                    return "11"
-                case "Dec":
-                    return "12"
-                default:
-                    return dateArr[1]
-            }
-        }
+    // export let isLastDate = false;
 
-        return `${dayWeek()} ${day}/${month()}`;
-    }
+    const { isDateLast } = getContext("isDate")
+
+    let activeCell = 0;
+
+
+    $: console.log($isDateLast)
 
     // state
     let date, month, year, showDatePicker;
@@ -106,6 +59,8 @@
 
     const onDateChange = d => {
         // showDatePicker = false;
+        console.log("date change")
+        console.log(d)
         dispatch("datechange", d.detail);
     };
 
@@ -116,9 +71,18 @@
 </script>
 
 <div class="relative">
-    <div class="date-input">
+    <div class="date-input" on:click={onFocus}>
         <img src={calendar} />
-        <input class="date-input__text" type="text" on:focus={onFocus} value={formatedSelected(selected.toDateString())} />
+        <div class="date-input__text">
+            {formatedSelected(selected.toDateString())}
+        </div>
+        {#if $isDateLast}
+            <img class="date-input__separator" src={separator} />
+            <img src={calendar} />
+            <div class="date-input__text">
+                {formatedSelected(selectedLast.toDateString())}
+            </div>
+        {/if}
     </div>
     {#if showDatePicker}
         <div class="calendar-container">
@@ -142,6 +106,7 @@
                             {year}
                             date={selected}
                             {isAllowed}
+                            activeCell={activeCell}
                             on:datechange={onDateChange} />
                 </div>
                 <div class="box">
@@ -151,7 +116,7 @@
                                 <img src={arrowLeft} />
                             </button>
                         </div>
-                        <div class="center">{getMonthName(month)} {year}</div>
+                        <div class="center">{getMonthName(month + 1)} {year}</div>
                         <div class="center">
                             <button class="arrow-btn" on:click={next}>
                                 <img src={arrowRight} />
@@ -167,8 +132,8 @@
                 </div>
             </div>
             <div class="bottom-block">
-                <div class="checkbox">
-                    <input class="checkbox__input" type="checkbox" id="scales" name="scales" checked />
+                <div class="checkbox" on:click={() => $isDateLast = !$isDateLast}>
+                    <input class="checkbox__input" type="checkbox" id="scales" name="scales" checked={$isDateLast} />
                     <label class="checkbox__label" for="scales">Без конечной даты</label>
                 </div>
                 <button class="btn" on:click={onButtonReady}>
@@ -188,6 +153,12 @@
         padding: 15px 44px;
         border-radius: 5px;
         background-color: #E0E0E0;
+        display: flex;
+        cursor: pointer;
+    }
+    .date-input__separator {
+        margin-left: 50px;
+        margin-right: 50px;
     }
     :active, :hover, :focus {
         outline: 0;
@@ -202,7 +173,7 @@
 
         background-color: #E0E0E0;
         border: none;
-        margin: 0 0 0 4px;
+        margin: 0 0 0 8px;
         color: #333;
     }
     .calendar-container {
@@ -210,7 +181,7 @@
         flex-direction: column;
         background-color: #E0E0E0;
 
-        top: 40px;
+        top: 75px;
         left: 0px;
         border-radius: 5px;
         border: 1px solid #E0E0E0;
@@ -220,6 +191,24 @@
 
         padding: 34px 51px;
 
+    }
+    .calendar-container:before {
+        content: "";
+        position: absolute;
+        border-left: 10px solid rgba(113, 101, 58, 0);
+        border-right: 10px solid rgba(113, 101, 58, 0);
+        border-bottom: 10px solid #E0E0E0;
+        left: 10px;
+        top: -10px;
+    }
+    .calendar-container:after {
+        content: "";
+        position: absolute;
+        border-left: 10px solid rgba(255, 241, 190, 0);
+        border-right: 10px solid rgba(255, 241, 190, 0);
+        border-bottom: 10px solid #E0E0E0;
+        left: 10px;
+        top: -9px;
     }
     .calendar-box {
         display: flex;
@@ -239,6 +228,13 @@
         background-color: #E0E0E0;
     }
     .month-name {
+        color: #333;
+        font-family: Roboto;
+        font-size: 18px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: normal;
+
         display: flex;
         justify-content: space-around;
         align-items: center;
@@ -270,6 +266,14 @@
         border-radius: 5px;
         justify-content: center;
         align-items: center;
+    }
+    .checkbox__label {
+        color: #333;
+        font-family: Roboto;
+        font-size: 13px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: normal;
     }
     .checkbox__input {
         color: #E0E0E0;

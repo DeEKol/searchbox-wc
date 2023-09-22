@@ -53,3 +53,62 @@ export const uuid = (() => {
         return ++id;
     };
 })();
+
+export const formatedSelected = (date) => {
+    console.log(date);
+    const dateArr = date.split(" ");
+    console.log(dateArr)
+    const dayWeek = () => {
+        switch(dateArr[0]) {
+            case "Mon":
+                return "Пт"
+            case "Tue":
+                return "Вт"
+            case "Wed":
+                return "Ср"
+            case "Thu":
+                return "Чт"
+            case "Fri":
+                return "Пт"
+            case "Sat":
+                return "Сб"
+            case "Sun":
+                return "Вс"
+            default:
+                return dateArr[0]
+        }
+    }
+    const day = dateArr[2];
+    const month = () => {
+        switch(dateArr[1]) {
+            case "Jan":
+                return "01"
+            case "Feb":
+                return "02"
+            case "Mar":
+                return "03"
+            case "Apr":
+                return "04"
+            case "May":
+                return "05"
+            case "June":
+                return "06"
+            case "July":
+                return "07"
+            case "Aug":
+                return "08"
+            case "Sep":
+                return "09"
+            case "Oct":
+                return "10"
+            case "Nov":
+                return "11"
+            case "Dec":
+                return "12"
+            default:
+                return dateArr[1]
+        }
+    }
+
+    return `${dayWeek()} ${day}/${month()}`;
+}

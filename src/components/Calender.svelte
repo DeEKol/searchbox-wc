@@ -1,6 +1,9 @@
 <script>
     import { getDateRows, uuid, noop } from "./date-time.js";
-    import { createEventDispatcher } from "svelte";
+    import {createEventDispatcher, getContext} from "svelte";
+
+    const { isDateLast, activetedCell } = getContext("isDate")
+
 
     const dispatch = createEventDispatcher();
 
@@ -14,9 +17,16 @@
     const weekdays = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
     let cells;
 
+    export let activeCell;
+
     // function helpers
     const onChange = date => {
         console.log("click")
+        console.log(date)
+        if ($isDateLast) {
+            activeCell = date
+        }
+
         dispatch("datechange", new Date(year, month, date));
     };
 
@@ -29,6 +39,8 @@
         value: c,
         allowed: allow(year, month, c)
     }));
+
+    $: console.log(cells);
 </script>
 
 <div class="container">
@@ -45,7 +57,8 @@
                     class:cell={true}
                     class:highlight={allowed && value}
                     class:disabled={!allowed}
-                    class:selected={new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime() === new Date(year, month, value).getTime()}>
+                    class:selected={new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime() === new Date(year, month, value).getTime()}
+                    class:selectedLast={$isDateLast && (activeCell >= value)}>
                 {value || ''}
             </div>
         {/each}
@@ -59,6 +72,13 @@
         width: 370px;
     }
     .row {
+        color: #333;
+        font-family: Roboto;
+        font-size: 15px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: normal;
+
         display: flex;
         margin: 2px 6px;
         flex-wrap: wrap;
@@ -74,7 +94,14 @@
     }
 
     .selected {
-        background: #84e791;
+        border-radius: 3px;
+        background: #333333;
+        color: #F2F2F2;
+    }
+    .selectedLast {
+        border-radius: 3px;
+        background: #333333;
+        color: #F2F2F2;
     }
 
     .highlight {
@@ -82,12 +109,13 @@
     }
 
     .disabled {
-        background: #efefef;
+        background: #E0E0E0;
         cursor: not-allowed;
         color: #bfbfbf;
     }
 
     .highlight:hover {
+        border-radius: 3px;
         background: rgb(238, 176, 60);
         color: #fff;
         cursor: pointer;
@@ -95,6 +123,6 @@
     }
 
     .selected.highlight:hover {
-        background: green;
+        background: #333333;
     }
 </style>

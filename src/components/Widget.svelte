@@ -11,11 +11,25 @@
 <script>
     import Select from "./Select.svelte";
     import DatePicker from "./DatePicker.svelte";
+    import {setContext} from "svelte";
+    import {writable} from "svelte/store";
 
     let currentDate = new Date();
+    let lastSelected = new Date();
+
+    // let isLastDate = true;
+    let isDateLast = writable(true);
+    let activetedCell = writable(0);
+
+    setContext('isDate', { isDateLast, activetedCell });
 
     const onDateChange = d => {
-        currentDate = d.detail;
+        if (!$isDateLast) {
+            currentDate = d.detail;
+        }
+        if ($isDateLast) {
+            lastSelected = d.detail;
+        }
     };
 
     export let cities;
@@ -32,6 +46,7 @@
         <DatePicker
                 on:datechange={onDateChange}
                 selected={currentDate}
+                selectedLast={lastSelected}
                 isAllowed={date => {
                     const millisecs = date.getTime();
                     if (millisecs + 25 * 3600 * 1000 < Date.now()) return false;
