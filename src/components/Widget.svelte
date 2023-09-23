@@ -18,7 +18,7 @@
     let lastSelected = new Date();
 
     // let isLastDate = true;
-    let isDateLast = writable(true);
+    let isDateLast = writable(false);
     let activetedCell = writable(0);
 
     setContext('isDate', { isDateLast, activetedCell });
