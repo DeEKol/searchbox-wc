@@ -2,11 +2,11 @@
     import {createEventDispatcher, getContext, setContext} from "svelte";
     import Calender from "./Calender.svelte";
     import { getMonthName } from "./date-time.js";
-    import calendar from "../assets/calendar.svg";
-    import arrowLeft from "../assets/arrow-left.svg";
-    import arrowRight from "../assets/arrow-right.svg";
-    import separator from "../assets/separator.svg";
-    import checkbox from "../assets/checkbox.svg";
+    import calendar from "../../assets/calendar.svg";
+    import arrowLeft from "../../assets/arrow-left.svg";
+    import arrowRight from "../../assets/arrow-right.svg";
+    import separator from "../../assets/separator.svg";
+    import checkbox from "../../assets/checkbox.svg";
     import { formatedSelected } from "./date-time.js";
     import { fade } from 'svelte/transition';
 
@@ -19,7 +19,7 @@
 
     // export let isLastDate = false;
 
-    const { isDateLast, activetedCell, firstCell, pickDateLast } = getContext("isDate")
+    const { isDateLast, activetedCell, firstCell, pickDateLast, showDatePicker } = getContext("isDate")
     const dataForm = getContext("dataForm")
 
 
@@ -30,7 +30,7 @@
 
 
     // state
-    let date, month, year, showDatePicker;
+    let date, month, year;
 
     // so that these change with props
     $: {
@@ -41,7 +41,7 @@
 
     // handlers
     const onFocus = () => {
-        showDatePicker = true;
+        $showDatePicker = true;
         $pickDateLast = false;
     };
 
@@ -69,31 +69,31 @@
     };
 
     const onButtonReady = () => {
-        showDatePicker = false;
+        $showDatePicker = false;
     }
 
     const onClickCheckbox = () => {
-      $isDateLast = !$isDateLast;
-      $dataForm.dateTo = $dataForm.dateFrom;
-      $activetedCell = $firstCell;
-      selectedLast = selected;
-      dispatch("datechange", new Date(year, month, date));
-      // $pickDateLast = !$pickDateLast;
-      if (!$isDateLast) {
-        $pickDateLast = false;
-      }
+        $isDateLast = !$isDateLast;
+        $dataForm.dateTo = $dataForm.dateFrom;
+        $activetedCell = $firstCell;
+        selectedLast = selected;
+        dispatch("datechange", new Date(year, month, date));
+
+        if (!$isDateLast) {
+            $pickDateLast = false;
+        }
     }
 
     const onClickTwoDate = () => {
-      showDatePicker = true;
-      $pickDateLast = true;
+        $showDatePicker = true;
+        $pickDateLast = true;
     }
 
 </script>
 
 <div class="relative">
     <div class="date-input" >
-        <div class="date-input__elem" class:pickActive={!$pickDateLast && showDatePicker} on:click={onFocus}>
+        <div class="date-input__elem" class:pickActive={!$pickDateLast && $showDatePicker} on:click={onFocus}>
             <img src={calendar} />
             <div class="date-input__text">
                 {formatedSelected(selected.toDateString())}
@@ -101,7 +101,7 @@
         </div>
         {#if $isDateLast}
             <img class="date-input__separator" src={separator} transition:fade />
-            <div class="date-input__elem" class:pickActive={$pickDateLast && showDatePicker} on:click={onClickTwoDate}>
+            <div class="date-input__elem" class:pickActive={$pickDateLast && $showDatePicker} on:click={onClickTwoDate}>
                 <img src={calendar} transition:fade />
                 <div class="date-input__text" transition:fade>
                     {formatedSelected(selectedLast.toDateString())}
@@ -110,7 +110,7 @@
 
         {/if}
     </div>
-    {#if showDatePicker}
+    {#if $showDatePicker}
         <div class="calendar-container" transition:fade>
             <div class="calendar-box">
                 <div class="box">

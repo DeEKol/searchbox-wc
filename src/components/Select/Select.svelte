@@ -1,5 +1,5 @@
 <script>
-    import geo from "../assets/geo.svg";
+    import geo from "../../assets/geo.svg";
     import {getContext} from "svelte";
     import { fade } from 'svelte/transition';
 
@@ -16,7 +16,6 @@
 
     export let title;
 
-    // let selectText = cities[0];
     let selectText = "Выберите город";
 
     $: filtredCities = cities.filter(elem => elem !== selectText);

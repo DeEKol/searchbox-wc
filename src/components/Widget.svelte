@@ -9,10 +9,11 @@
 />
 
 <script>
-    import Select from "./Select.svelte";
-    import DatePicker from "./DatePicker.svelte";
+    import Select from "./Select/Select.svelte";
+    import DatePicker from "./DatePicker/DatePicker.svelte";
     import {setContext} from "svelte";
     import {writable} from "svelte/store";
+    import Modal from "./Modal/Modal.svelte";
 
     export let cities = [];
     $: citiesArr = cities;
@@ -29,7 +30,12 @@
     let currentDate = new Date();
     let lastSelected = new Date();
 
+    let isModal = writable(false);
+    setContext('isModal', isModal);
+
+
     let isDateLast = writable(false);
+    let showDatePicker = writable(false);
 
     let firstCell = writable({
         date: 0,
@@ -42,7 +48,7 @@
 
     let pickDateLast = writable(false);
 
-    setContext('isDate', { isDateLast, activetedCell, firstCell, pickDateLast });
+    setContext('isDate', { isDateLast, activetedCell, firstCell, pickDateLast, showDatePicker });
 
     const onDateChange = d => {
       if (!$isDateLast) {
@@ -85,11 +91,13 @@
 
     let isError = false;
     const onClick = () => {
+        $showDatePicker = false;
         if ($dataForm.from === "" || $dataForm.to === "") {
             isError = true;
         } else {
             find.dispatchEvent(event)
             isError = false;
+            $isModal = true;
         }
     }
 
@@ -120,6 +128,9 @@
         <div class="error">Заполните все поля!!!</div>
     {/if}
 </div>
+{#if $isModal}
+    <Modal dataForm={$dataForm} />
+{/if}
 <slot class="card" />
 
 <style>
@@ -129,8 +140,6 @@
         box-sizing: border-box;
         padding: 20px 23px;
 
-        /*width: 1032px;*/
-        /*height: 101px;*/
         border-radius: 10px;
         background-color: #F2F2F2;
         box-shadow: 20px 20px 120px 15px rgba(0, 0, 0, 0.05);
@@ -169,15 +178,15 @@
         box-shadow: inset 0px 0px 15px #E0E0E0;
     }
     .error {
-      font-family: Roboto;
-      font-size: 14px;
-      font-style: normal;
-      font-weight: 500;
-      line-height: normal;
+        font-family: Roboto;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 500;
+        line-height: normal;
 
-      position: absolute;
-      bottom: 2px;
-      left: 10px;
-      color: red;
+        position: absolute;
+        bottom: 2px;
+        left: 10px;
+        color: red;
     }
 </style>
