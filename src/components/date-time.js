@@ -55,13 +55,11 @@ export const uuid = (() => {
 })();
 
 export const formatedSelected = (date) => {
-    console.log(date);
     const dateArr = date.split(" ");
-    console.log(dateArr)
     const dayWeek = () => {
         switch(dateArr[0]) {
             case "Mon":
-                return "Пт"
+                return "Пн"
             case "Tue":
                 return "Вт"
             case "Wed":

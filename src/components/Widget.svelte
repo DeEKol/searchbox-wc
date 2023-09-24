@@ -14,31 +14,89 @@
     import {setContext} from "svelte";
     import {writable} from "svelte/store";
 
+    export let cities;
+
+    const citiesArr = cities.split(",");
+
+    let dataForm = writable({
+        from: "",
+        to: "",
+        dateFrom: new Date(),
+        dateTo: new Date(),
+    });
+
+    setContext("dataForm", dataForm);
+
     let currentDate = new Date();
     let lastSelected = new Date();
 
-    // let isLastDate = true;
     let isDateLast = writable(false);
-    let activetedCell = writable(0);
 
-    setContext('isDate', { isDateLast, activetedCell });
+    let firstCell = writable({
+        date: 0,
+        month: 0,
+    });
+    let activetedCell = writable({
+        date: 0,
+        month: 0,
+    });
+
+    setContext('isDate', { isDateLast, activetedCell, firstCell });
 
     const onDateChange = d => {
         if (!$isDateLast) {
             currentDate = d.detail;
+            $dataForm.dateFrom = currentDate;
+            $dataForm.dateTo = currentDate;
         }
         if ($isDateLast) {
-            lastSelected = d.detail;
+            if ($firstCell.month >= $activetedCell.month && $firstCell.date > $activetedCell.date) {
+              // if (lastSelected !== currentDate) {
+              //   currentDate = d.detail;
+              //   $dataForm.dateFrom = currentDate;
+              // }
+              lastSelected = currentDate;
+
+            }
+            else if ($firstCell.month > $activetedCell.month) {
+              // currentDate = d.detail;
+              lastSelected = currentDate;
+
+              // $dataForm.dateFrom = currentDate;
+            }
+            // else if ($firstCell.month <= $activetedCell.month && $firstCell.date < $activetedCell.date) {
+            //   currentDate = d.detail;
+            //   $dataForm.dateFrom = currentDate;
+            // }
+            else {
+              lastSelected = d.detail;
+            }
+            $dataForm.dateTo = lastSelected;
         }
     };
 
-    export let cities;
+    let find;
+    let event = new Event("search", {
+      bubbles: true,
+      composed: true,
+    });
+    event.dataForm = $dataForm;
+
+    let isError = false;
+    const onClick = () => {
+        if ($dataForm.from === "" || $dataForm.to === "") {
+            isError = true;
+        } else {
+            find.dispatchEvent(event)
+            isError = false;
+        }
+    }
 
 </script>
 
 <div class="widget">
-    <Select title="Откуда" cities={cities} />
-    <Select title="Куда" cities={cities} />
+    <Select title="Откуда" cities={citiesArr} />
+    <Select title="Куда" cities={citiesArr} />
     <div class="date">
         <h3 class="title">
             Даты
@@ -55,18 +113,23 @@
                 }}
         />
     </div>
-    <button class="btn">
+    <button bind:this={find} class="btn" on:click={onClick}>
         Найти
     </button>
+    {#if isError}
+        <div class="error">Заполните все поля</div>
+    {/if}
 </div>
 <slot class="card" />
 
 <style>
     .widget {
+        position: relative;
+
         box-sizing: border-box;
         padding: 20px 23px;
 
-        width: 1032px;
+        /*width: 1032px;*/
         /*height: 101px;*/
         border-radius: 10px;
         background-color: #F2F2F2;
@@ -85,6 +148,9 @@
         line-height: normal;
         margin: 0 0 10px 0;
     }
+    .date {
+      margin-right: 12px;
+    }
     .btn {
         border: none;
         height: 47px;
@@ -94,5 +160,24 @@
         border-radius: 5px;
         justify-content: center;
         align-items: center;
+
+        margin-top: 26px;
+
+        transition: box-shadow 0.3s;
+    }
+    .btn:hover {
+        box-shadow: inset 0px 0px 15px #E0E0E0;
+    }
+    .error {
+      font-family: Roboto;
+      font-size: 14px;
+      font-style: normal;
+      font-weight: 500;
+      line-height: normal;
+
+      position: absolute;
+      bottom: 2px;
+      left: 10px;
+      color: red;
     }
 </style>

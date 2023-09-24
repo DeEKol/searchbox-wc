@@ -1,12 +1,14 @@
 <script>
-    import {createEventDispatcher, getContext} from "svelte";
+    import {createEventDispatcher, getContext, setContext} from "svelte";
     import Calender from "./Calender.svelte";
     import { getMonthName } from "./date-time.js";
     import calendar from "../assets/calendar.svg";
     import arrowLeft from "../assets/arrow-left.svg";
     import arrowRight from "../assets/arrow-right.svg";
     import separator from "../assets/separator.svg";
+    import checkbox from "../assets/checkbox.svg";
     import { formatedSelected } from "./date-time.js";
+    import { fade } from 'svelte/transition';
 
     const dispatch = createEventDispatcher();
 
@@ -17,12 +19,15 @@
 
     // export let isLastDate = false;
 
-    const { isDateLast } = getContext("isDate")
+    const { isDateLast, activetedCell, firstCell } = getContext("isDate")
+    const dataForm = getContext("dataForm")
 
-    let activeCell = 0;
 
+    let activeCell = {
+      date: 0,
+      month: 0,
+    };
 
-    $: console.log($isDateLast)
 
     // state
     let date, month, year, showDatePicker;
@@ -36,7 +41,7 @@
 
     // handlers
     const onFocus = () => {
-        showDatePicker = true;
+        showDatePicker = !showDatePicker;
     };
 
     const next = () => {
@@ -59,13 +64,18 @@
 
     const onDateChange = d => {
         // showDatePicker = false;
-        console.log("date change")
-        console.log(d)
         dispatch("datechange", d.detail);
     };
 
     const onButtonReady = () => {
         showDatePicker = false;
+    }
+
+    const onClickCheckbox = () => {
+      $isDateLast = !$isDateLast;
+      $dataForm.dateTo = $dataForm.dateFrom;
+      $activetedCell = $firstCell;
+      selectedLast = selected;
     }
 
 </script>
@@ -77,15 +87,15 @@
             {formatedSelected(selected.toDateString())}
         </div>
         {#if $isDateLast}
-            <img class="date-input__separator" src={separator} />
-            <img src={calendar} />
-            <div class="date-input__text">
+            <img class="date-input__separator" src={separator} transition:fade />
+            <img src={calendar} transition:fade />
+            <div class="date-input__text" transition:fade>
                 {formatedSelected(selectedLast.toDateString())}
             </div>
         {/if}
     </div>
     {#if showDatePicker}
-        <div class="calendar-container">
+        <div class="calendar-container" transition:fade>
             <div class="calendar-box">
                 <div class="box">
                     <div class="month-name">
@@ -94,7 +104,7 @@
                                 <img src={arrowLeft} />
                             </button>
                         </div>
-                        <div class="center">{getMonthName(month)} {year}</div>
+                        <div class="center">{getMonthName(month)}</div>
                         <div class="center">
                             <button class="arrow-btn" on:click={next}>
                                 <img src={arrowRight} />
@@ -116,7 +126,7 @@
                                 <img src={arrowLeft} />
                             </button>
                         </div>
-                        <div class="center">{getMonthName(month + 1)} {year}</div>
+                        <div class="center">{getMonthName(month + 1)}</div>
                         <div class="center">
                             <button class="arrow-btn" on:click={next}>
                                 <img src={arrowRight} />
@@ -132,8 +142,8 @@
                 </div>
             </div>
             <div class="bottom-block">
-                <div class="checkbox" on:click={() => $isDateLast = !$isDateLast}>
-                    <input class="checkbox__input" type="checkbox" id="scales" name="scales" checked={$isDateLast} />
+                <div class="checkbox">
+                    <input on:click={onClickCheckbox} class="checkbox__input" type="checkbox" id="scales" name="scales" checked={!$isDateLast} />
                     <label class="checkbox__label" for="scales">Без конечной даты</label>
                 </div>
                 <button class="btn" on:click={onButtonReady}>
@@ -155,6 +165,10 @@
         background-color: #E0E0E0;
         display: flex;
         cursor: pointer;
+        transition: box-shadow 0.3s;
+    }
+    .date-input:hover {
+        box-shadow: inset 0px 0px 30px rgba(0,0,0,0.5);
     }
     .date-input__separator {
         margin-left: 50px;
@@ -171,23 +185,23 @@
         font-weight: 400;
         line-height: normal;
 
-        background-color: #E0E0E0;
         border: none;
         margin: 0 0 0 8px;
         color: #333;
+
+        white-space: nowrap;
     }
     .calendar-container {
         position: absolute;
         flex-direction: column;
-        background-color: #E0E0E0;
 
-        top: 75px;
+        top: 72px;
         left: 0px;
         border-radius: 5px;
-        border: 1px solid #E0E0E0;
+        border: 1px solid #BDBDBD;
         display: inline-block;
 
-        background-color: #E0E0E0;
+        background-color: #F2F2F2;
 
         padding: 34px 51px;
 
@@ -197,7 +211,7 @@
         position: absolute;
         border-left: 10px solid rgba(113, 101, 58, 0);
         border-right: 10px solid rgba(113, 101, 58, 0);
-        border-bottom: 10px solid #E0E0E0;
+        border-bottom: 10px solid #BDBDBD;
         left: 10px;
         top: -10px;
     }
@@ -206,26 +220,20 @@
         position: absolute;
         border-left: 10px solid rgba(255, 241, 190, 0);
         border-right: 10px solid rgba(255, 241, 190, 0);
-        border-bottom: 10px solid #E0E0E0;
+        border-bottom: 10px solid #F2F2F2;
         left: 10px;
         top: -9px;
     }
     .calendar-box {
         display: flex;
     }
-    .box {
-        /*top: 40px;*/
-        /*left: 0px;*/
-        /*border-radius: 5px;*/
-        /*border: 1px solid #E0E0E0;*/
-        /*display: inline-block;*/
-
-        /*background-color: #E0E0E0;*/
-
-        /*padding: 34px 51px;*/
-    }
     .arrow-btn {
-        background-color: #E0E0E0;
+        background-color: transparent;
+        transition: box-shadow 0.3s;
+    }
+    .arrow-btn:hover {
+        border: 1px transparent solid;
+        box-shadow: inset 0px 0px 15px rgba(0,0,0,0.5);
     }
     .month-name {
         color: #333;
@@ -236,9 +244,9 @@
         line-height: normal;
 
         display: flex;
-        justify-content: space-around;
+        justify-content: space-between;
         align-items: center;
-        margin: 6px 0;
+        margin: 6px 40px 0 0;
     }
 
     .center {
@@ -257,14 +265,9 @@
         padding-top: 29px;
         margin-top: 20px;
     }
-    .btn {
-        border: none;
-        height: 47px;
-        color: #F2F2F2;
-        background-color: #333;
-        padding: 14px 40px;
-        border-radius: 5px;
-        justify-content: center;
+
+    .checkbox {
+        display: flex;
         align-items: center;
     }
     .checkbox__label {
@@ -274,9 +277,55 @@
         font-style: normal;
         font-weight: 400;
         line-height: normal;
+        cursor: pointer;
     }
     .checkbox__input {
-        color: #E0E0E0;
-        accent-color: #E0E0E0;
+        position: absolute;
+        z-index: -1;
+        opacity: 0;
+    }
+    .checkbox__input+label {
+        display: inline-flex;
+        align-items: center;
+        user-select: none;
+    }
+    .checkbox__input+label::before {
+        content: '';
+        display: inline-block;
+        width: 1em;
+        height: 1em;
+        flex-shrink: 0;
+        flex-grow: 0;
+        border: 1px solid #333;
+        border-radius: 0.25em;
+        margin-right: 0.5em;
+        background-repeat: no-repeat;
+        background-position: center center;
+        background-size: 50% 50%;
+        cursor: pointer;
+
+        transition: box-shadow 0.3s;
+    }
+    .checkbox__input:checked+label::before {
+        background-image: url("src/assets/checkbox.svg");
+        background-size: cover;
+    }
+    .checkbox__input:not(:disabled)+label:hover::before {
+        box-shadow: inset 0px 0px 5px rgba(0,0,0,0.5);
+    }
+
+    .btn {
+        border: none;
+        height: 47px;
+        color: #F2F2F2;
+        background-color: #333;
+        padding: 14px 40px;
+        border-radius: 5px;
+        justify-content: center;
+        align-items: center;
+        transition: box-shadow 0.3s;
+    }
+    .btn:hover {
+        box-shadow: inset 0px 0px 15px #E0E0E0;
     }
 </style>

@@ -2,7 +2,7 @@
     import { getDateRows, uuid, noop } from "./date-time.js";
     import {createEventDispatcher, getContext} from "svelte";
 
-    const { isDateLast, activetedCell } = getContext("isDate")
+    const { isDateLast, activetedCell, firstCell } = getContext("isDate")
 
 
     const dispatch = createEventDispatcher();
@@ -17,14 +17,28 @@
     const weekdays = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
     let cells;
 
-    export let activeCell;
+    export let activeCell = {
+      date: 0,
+      month: 0,
+    };
 
     // function helpers
     const onChange = date => {
-        console.log("click")
-        console.log(date)
+        if (!$isDateLast) {
+            $firstCell = {
+                date: date,
+                month: month,
+            }
+        }
         if ($isDateLast) {
-            activeCell = date
+            $activetedCell = {
+                date: date,
+                month: month,
+            }
+            // if ($firstCell.date > date) {
+            //   console.log("ok")
+            //   $firstCell = $activetedCell;
+            // }
         }
 
         dispatch("datechange", new Date(year, month, date));
@@ -40,7 +54,6 @@
         allowed: allow(year, month, c)
     }));
 
-    $: console.log(cells);
 </script>
 
 <div class="container">
@@ -58,7 +71,13 @@
                     class:highlight={allowed && value}
                     class:disabled={!allowed}
                     class:selected={new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime() === new Date(year, month, value).getTime()}
-                    class:selectedLast={$isDateLast && (activeCell >= value)}>
+                    class:selectedLast={
+                        $isDateLast && value && allowed && (month >= $firstCell.month) &&
+                        ((month === $activetedCell.month && (value >= $firstCell.date) && ($activetedCell.date >= value))
+
+                        || (month < $activetedCell.month) && ($activetedCell.month !== $firstCell.month) && (value > $firstCell.date)
+                        || (month === $activetedCell.month) && (month > $firstCell.month) && (value <= $activetedCell.date)
+                        || (month < $activetedCell.month) && ($firstCell.month !== month) && ($firstCell.month < $activetedCell.month))}>
                 {value || ''}
             </div>
         {/each}
@@ -86,11 +105,11 @@
 
     .cell {
         display: inline-block;
-        width: 40px;
+        width: 42px;
         height: 20px;
         text-align: center;
         padding: 4px;
-        margin: 1px;
+        margin: 1px -2px;
     }
 
     .selected {
@@ -109,7 +128,6 @@
     }
 
     .disabled {
-        background: #E0E0E0;
         cursor: not-allowed;
         color: #bfbfbf;
     }

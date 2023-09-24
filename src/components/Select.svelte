@@ -1,27 +1,39 @@
 <script>
-import geo from "../assets/geo.svg";
-let isOpenSelect = false;
+    import geo from "../assets/geo.svg";
+    import {getContext} from "svelte";
+    import { fade } from 'svelte/transition';
 
-const openSelect = () => {
-    isOpenSelect = !isOpenSelect;
-}
 
-export let cities;
+    const dataForm = getContext("dataForm");
 
-export let title;
+    let isOpenSelect = false;
 
-let selectText = cities.split(",")[0];
+    const openSelect = () => {
+        isOpenSelect = !isOpenSelect;
+    }
 
-const onClickSelect = () => {
-    isOpenSelect = !isOpenSelect;
-    console.log(isOpenSelect);
-    console.log("select");
-}
+    export let cities;
 
-const onClickOption = (city) => {
-    console.log("option");
-    selectText = city;
-}
+    export let title;
+
+    // let selectText = cities[0];
+    let selectText = "Выберите город";
+
+    $: filtredCities = cities.filter(elem => elem !== selectText);
+
+    const onClickSelect = () => {
+        isOpenSelect = !isOpenSelect;
+    }
+
+    const onClickOption = (city) => {
+        selectText = city;
+        if (title === "Откуда") {
+            $dataForm.from = selectText;
+        }
+        else if (title === "Куда") {
+            $dataForm.to = selectText;
+        }
+    }
 </script>
 
 <div class="from select-block">
@@ -34,8 +46,8 @@ const onClickOption = (city) => {
             <p class="select__text">{selectText}</p>
         </div>
         {#if isOpenSelect}
-            <div class="select__popup">
-                {#each cities.split(",") as city}
+            <div class="select__popup" transition:fade>
+                {#each filtredCities as city}
                     <div class="select__option" on:click={onClickOption(city)}>{city}</div>
                 {/each}
             </div>
@@ -55,6 +67,8 @@ const onClickOption = (city) => {
     .select-block {
         display: flex;
         flex-direction: column;
+
+        margin-right: 12px;
     }
     .select {
         position: relative;
@@ -70,8 +84,18 @@ const onClickOption = (city) => {
         max-width: 200px;
 
         cursor: pointer;
+        transition: box-shadow 0.3s;
+    }
+    .select__main:hover {
+      box-shadow: inset 0px 0px 30px rgba(0,0,0,0.5);
     }
     .select__text {
+        font-family: Roboto;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: normal;
+
         margin: 0 0 0 8px;
 
         overflow: hidden;
@@ -79,7 +103,7 @@ const onClickOption = (city) => {
         text-overflow: ellipsis;
     }
     .select__popup {
-        top: 52px;
+        top: 72px;
         left: 0;
         position: absolute;
         display: flex;
