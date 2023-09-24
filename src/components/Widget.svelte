@@ -14,9 +14,8 @@
     import {setContext} from "svelte";
     import {writable} from "svelte/store";
 
-    export let cities;
-
-    const citiesArr = cities.split(",");
+    export let cities = [];
+    $: citiesArr = cities;
 
     let dataForm = writable({
         from: "",
@@ -75,9 +74,6 @@
               $dataForm.dateFrom = currentDate;
             }
         }
-      console.log(currentDate);
-      console.log(lastSelected);
-      console.log("")
     };
 
     let find;

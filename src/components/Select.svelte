@@ -47,6 +47,9 @@
         </div>
         {#if isOpenSelect}
             <div class="select__popup" transition:fade>
+                {#if !cities.length}
+                    Загрузка городов...
+                {/if}
                 {#each filtredCities as city}
                     <div class="select__option" on:click={onClickOption(city)}>{city}</div>
                 {/each}
@@ -72,7 +75,6 @@
     }
     .select {
         position: relative;
-        /*padding: 15px 18px;*/
     }
     .select__main {
         border-radius: 5px;
@@ -112,6 +114,7 @@
         display: flex;
         flex-direction: column;
         padding: 10px;
+        max-width: 232px;
 
         border: 1px solid #BDBDBD;
         border-radius: 5px;
@@ -123,6 +126,10 @@
         background-color: #F2F2F2;
         border-radius: 5px;
         padding: 10px;
+
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
     }
     .select__option:not(:last-child) {
         margin-bottom: 2px;
