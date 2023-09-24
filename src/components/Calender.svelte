@@ -2,7 +2,7 @@
     import { getDateRows, uuid, noop } from "./date-time.js";
     import {createEventDispatcher, getContext} from "svelte";
 
-    const { isDateLast, activetedCell, firstCell } = getContext("isDate")
+    const { isDateLast, activetedCell, firstCell, pickDateLast } = getContext("isDate")
 
 
     const dispatch = createEventDispatcher();
@@ -24,23 +24,54 @@
 
     // function helpers
     const onChange = date => {
-        if (!$isDateLast) {
+      if (!$isDateLast) {
+        $firstCell = {
+          date: date,
+          month: month,
+        }
+        $activetedCell = {
+          date: date,
+          month: month,
+        }
+        dispatch("datechange", new Date(year, month, date));
+        return;
+      }
+        if (!$pickDateLast) {
             $firstCell = {
                 date: date,
                 month: month,
             }
-        }
-        if ($isDateLast) {
-            $activetedCell = {
+            if ($activetedCell.month === month && $firstCell.date > $activetedCell.date) {
+              $activetedCell = {
                 date: date,
                 month: month,
+              }
             }
-            // if ($firstCell.date > date) {
-            //   console.log("ok")
-            //   $firstCell = $activetedCell;
-            // }
+            else if ($activetedCell.month < month) {
+              $activetedCell = {
+                date: date,
+                month: month,
+              }
+            }
         }
-
+        if ($pickDateLast) {
+          $activetedCell = {
+            date: date,
+            month: month,
+          }
+          if ($firstCell.month >= $activetedCell.month && $firstCell.date > $activetedCell.date) {
+            $firstCell = {
+              date: date,
+              month: month,
+            }
+          }
+          else if (month < $firstCell.month) {
+            $firstCell = {
+              date: date,
+              month: month,
+            }
+          }
+        }
         dispatch("datechange", new Date(year, month, date));
     };
 

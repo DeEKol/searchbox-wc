@@ -19,7 +19,7 @@
 
     // export let isLastDate = false;
 
-    const { isDateLast, activetedCell, firstCell } = getContext("isDate")
+    const { isDateLast, activetedCell, firstCell, pickDateLast } = getContext("isDate")
     const dataForm = getContext("dataForm")
 
 
@@ -42,6 +42,7 @@
     // handlers
     const onFocus = () => {
         showDatePicker = true;
+        $pickDateLast = false;
     };
 
     const next = () => {
@@ -76,16 +77,23 @@
       $dataForm.dateTo = $dataForm.dateFrom;
       $activetedCell = $firstCell;
       selectedLast = selected;
-      pickDateLast = !pickDateLast;
+      dispatch("datechange", new Date(year, month, date));
+      // $pickDateLast = !$pickDateLast;
+      if (!$isDateLast) {
+        $pickDateLast = false;
+      }
     }
 
-    let pickDateLast = false;
+    const onClickTwoDate = () => {
+      showDatePicker = true;
+      $pickDateLast = true;
+    }
 
 </script>
 
 <div class="relative">
-    <div class="date-input" on:click={onFocus}>
-        <div class="date-input__elem" class:pickActive={!pickDateLast && showDatePicker}>
+    <div class="date-input" >
+        <div class="date-input__elem" class:pickActive={!$pickDateLast && showDatePicker} on:click={onFocus}>
             <img src={calendar} />
             <div class="date-input__text">
                 {formatedSelected(selected.toDateString())}
@@ -93,7 +101,7 @@
         </div>
         {#if $isDateLast}
             <img class="date-input__separator" src={separator} transition:fade />
-            <div class="date-input__elem" class:pickActive={pickDateLast} on:click={() => pickDateLast = true}>
+            <div class="date-input__elem" class:pickActive={$pickDateLast && showDatePicker} on:click={onClickTwoDate}>
                 <img src={calendar} transition:fade />
                 <div class="date-input__text" transition:fade>
                     {formatedSelected(selectedLast.toDateString())}
@@ -171,13 +179,13 @@
         border-radius: 5px;
         background-color: #E0E0E0;
         display: flex;
-        cursor: pointer;
     }
 
     .date-input__elem {
         display: flex;
         padding: 15px 44px;
         border-radius: 5px;
+        cursor: pointer;
         transition: box-shadow 0.3s;
     }
     .date-input__elem:hover {

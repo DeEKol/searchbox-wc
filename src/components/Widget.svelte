@@ -41,38 +41,43 @@
         month: 0,
     });
 
-    setContext('isDate', { isDateLast, activetedCell, firstCell });
+    let pickDateLast = writable(false);
+
+    setContext('isDate', { isDateLast, activetedCell, firstCell, pickDateLast });
 
     const onDateChange = d => {
-        if (!$isDateLast) {
-            currentDate = d.detail;
+      if (!$isDateLast) {
+        currentDate = d.detail;
+        $dataForm.dateFrom = currentDate;
+        lastSelected = d.detail;
+        $dataForm.dateTo = lastSelected;
+        return;
+      }
+        if (!$pickDateLast) {
+          currentDate = d.detail;
             $dataForm.dateFrom = currentDate;
-            $dataForm.dateTo = currentDate;
-        }
-        if ($isDateLast) {
-            if ($firstCell.month >= $activetedCell.month && $firstCell.date > $activetedCell.date) {
-              // if (lastSelected !== currentDate) {
-              //   currentDate = d.detail;
-              //   $dataForm.dateFrom = currentDate;
-              // }
-              lastSelected = currentDate;
+              if ($firstCell.month >= $activetedCell.month && $firstCell.date >= $activetedCell.date) {
+                lastSelected = currentDate;
+                $dataForm.dateTo = lastSelected;
+              }
 
+        }
+        if ($pickDateLast) {
+          lastSelected = d.detail;
+          $dataForm.dateTo = lastSelected;
+
+            if ($firstCell.month >= $activetedCell.month && $firstCell.date >= $activetedCell.date) {
+              currentDate = d.detail;
+              $dataForm.dateFrom = currentDate;
             }
             else if ($firstCell.month > $activetedCell.month) {
-              // currentDate = d.detail;
-              lastSelected = currentDate;
-
-              // $dataForm.dateFrom = currentDate;
+              currentDate = d.detail;
+              $dataForm.dateFrom = currentDate;
             }
-            // else if ($firstCell.month <= $activetedCell.month && $firstCell.date < $activetedCell.date) {
-            //   currentDate = d.detail;
-            //   $dataForm.dateFrom = currentDate;
-            // }
-            else {
-              lastSelected = d.detail;
-            }
-            $dataForm.dateTo = lastSelected;
         }
+      console.log(currentDate);
+      console.log(lastSelected);
+      console.log("")
     };
 
     let find;
