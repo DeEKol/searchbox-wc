@@ -41,7 +41,7 @@
 
     // handlers
     const onFocus = () => {
-        showDatePicker = !showDatePicker;
+        showDatePicker = true;
     };
 
     const next = () => {
@@ -76,22 +76,30 @@
       $dataForm.dateTo = $dataForm.dateFrom;
       $activetedCell = $firstCell;
       selectedLast = selected;
+      pickDateLast = !pickDateLast;
     }
+
+    let pickDateLast = false;
 
 </script>
 
 <div class="relative">
     <div class="date-input" on:click={onFocus}>
-        <img src={calendar} />
-        <div class="date-input__text">
-            {formatedSelected(selected.toDateString())}
+        <div class="date-input__elem" class:pickActive={!pickDateLast && showDatePicker}>
+            <img src={calendar} />
+            <div class="date-input__text">
+                {formatedSelected(selected.toDateString())}
+            </div>
         </div>
         {#if $isDateLast}
             <img class="date-input__separator" src={separator} transition:fade />
-            <img src={calendar} transition:fade />
-            <div class="date-input__text" transition:fade>
-                {formatedSelected(selectedLast.toDateString())}
+            <div class="date-input__elem" class:pickActive={pickDateLast} on:click={() => pickDateLast = true}>
+                <img src={calendar} transition:fade />
+                <div class="date-input__text" transition:fade>
+                    {formatedSelected(selectedLast.toDateString())}
+                </div>
             </div>
+
         {/if}
     </div>
     {#if showDatePicker}
@@ -160,15 +168,20 @@
         position: relative;
     }
     .date-input {
-        padding: 15px 44px;
         border-radius: 5px;
         background-color: #E0E0E0;
         display: flex;
         cursor: pointer;
+    }
+
+    .date-input__elem {
+        display: flex;
+        padding: 15px 44px;
+        border-radius: 5px;
         transition: box-shadow 0.3s;
     }
-    .date-input:hover {
-        box-shadow: inset 0px 0px 30px rgba(0,0,0,0.5);
+    .date-input__elem:hover {
+        box-shadow: inset 0px 0px 30px rgba(238, 176, 60, 0.8);
     }
     .date-input__separator {
         margin-left: 50px;
@@ -191,6 +204,11 @@
 
         white-space: nowrap;
     }
+    .pickActive {
+        box-shadow: inset 0px 0px 30px rgba(0,0,0,0.5);
+    }
+
+
     .calendar-container {
         position: absolute;
         flex-direction: column;

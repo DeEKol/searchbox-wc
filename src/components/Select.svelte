@@ -41,7 +41,7 @@
         {title}
     </h3>
     <div class="select" on:click={onClickSelect}>
-        <div class="select__main">
+        <div class="select__main" class:pickActive={isOpenSelect}>
             <img src={geo} />
             <p class="select__text">{selectText}</p>
         </div>
@@ -87,7 +87,10 @@
         transition: box-shadow 0.3s;
     }
     .select__main:hover {
-      box-shadow: inset 0px 0px 30px rgba(0,0,0,0.5);
+        box-shadow: inset 0px 0px 30px rgba(238, 176, 60, 0.8);
+    }
+    .pickActive {
+        box-shadow: inset 0px 0px 30px rgba(0,0,0,0.5);
     }
     .select__text {
         font-family: Roboto;

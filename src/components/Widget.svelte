@@ -108,7 +108,6 @@
                 isAllowed={date => {
                     const millisecs = date.getTime();
                     if (millisecs + 25 * 3600 * 1000 < Date.now()) return false;
-                    if (millisecs > Date.now() + 3600 * 24 * 45 * 1000) return false;
                     return true;
                 }}
         />
@@ -117,7 +116,7 @@
         Найти
     </button>
     {#if isError}
-        <div class="error">Заполните все поля</div>
+        <div class="error">Заполните все поля!!!</div>
     {/if}
 </div>
 <slot class="card" />
