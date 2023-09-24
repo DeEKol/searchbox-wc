@@ -1,28 +1,22 @@
 <script>
-    import { getDateRows, uuid, noop } from "./date-time.js";
-    import {createEventDispatcher, getContext} from "svelte";
+    import { getDateRows, uuid, noop, weekdays } from "./date-time.js";
+    import { createEventDispatcher, getContext } from "svelte";
 
-    const { isDateLast, activetedCell, firstCell, pickDateLast } = getContext("isDate")
-
-
-    const dispatch = createEventDispatcher();
-
-    // props
     export let date;
     export let month;
     export let year;
     export let isAllowed;
-
-    // local vars to help in render
-    const weekdays = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
-    let cells;
-
     export let activeCell = {
-      date: 0,
-      month: 0,
+        date: 0,
+        month: 0,
     };
 
-    // function helpers
+    let cells;
+
+    const { isDateLast, activetedCell, firstCell, pickDateLast } = getContext("isDate")
+
+    const dispatch = createEventDispatcher();
+
     const onChange = date => {
         if (!$isDateLast) {
             $firstCell = {

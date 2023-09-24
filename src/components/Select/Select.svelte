@@ -1,24 +1,16 @@
 <script>
     import geo from "../../assets/geo.svg";
-    import {getContext} from "svelte";
+    import { getContext } from "svelte";
     import { fade } from 'svelte/transition';
 
-
-    const dataForm = getContext("dataForm");
-
-    let isOpenSelect = false;
-
-    const openSelect = () => {
-        isOpenSelect = !isOpenSelect;
-    }
-
     export let cities;
-
     export let title;
 
+    let isOpenSelect = false;
     let selectText = "Выберите город";
-
     $: filtredCities = cities.filter(elem => elem !== selectText);
+
+    const dataForm = getContext("dataForm");
 
     const onClickSelect = () => {
         isOpenSelect = !isOpenSelect;

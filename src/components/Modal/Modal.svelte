@@ -1,10 +1,11 @@
 <script>
     import { fade } from 'svelte/transition';
-    import {getContext} from "svelte";
+    import { getContext } from "svelte";
+
+    export let dataForm;
 
     const isModal = getContext("isModal")
 
-    export let dataForm;
 </script>
 
 <div class="modal-back" transition:fade on:click={() => $isModal = false}>

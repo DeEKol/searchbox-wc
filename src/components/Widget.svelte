@@ -11,12 +11,18 @@
 <script>
     import Select from "./Select/Select.svelte";
     import DatePicker from "./DatePicker/DatePicker.svelte";
-    import {setContext} from "svelte";
-    import {writable} from "svelte/store";
     import Modal from "./Modal/Modal.svelte";
+    import { fade } from 'svelte/transition';
+    import { setContext } from "svelte";
+    import {writable} from "svelte/store";
 
     export let cities = [];
     $: citiesArr = cities;
+
+    let currentDate = new Date();
+    let lastSelected = new Date();
+    let find;
+    let isError = false;
 
     let dataForm = writable({
         from: "",
@@ -24,19 +30,9 @@
         dateFrom: new Date(),
         dateTo: new Date(),
     });
-
-    setContext("dataForm", dataForm);
-
-    let currentDate = new Date();
-    let lastSelected = new Date();
-
     let isModal = writable(false);
-    setContext('isModal', isModal);
-
-
     let isDateLast = writable(false);
     let showDatePicker = writable(false);
-
     let firstCell = writable({
         date: 0,
         month: 0,
@@ -45,51 +41,48 @@
         date: 0,
         month: 0,
     });
-
     let pickDateLast = writable(false);
 
+    setContext("dataForm", dataForm);
+    setContext('isModal', isModal);
     setContext('isDate', { isDateLast, activetedCell, firstCell, pickDateLast, showDatePicker });
 
     const onDateChange = d => {
-      if (!$isDateLast) {
-        currentDate = d.detail;
-        $dataForm.dateFrom = currentDate;
-        lastSelected = d.detail;
-        $dataForm.dateTo = lastSelected;
-        return;
-      }
-        if (!$pickDateLast) {
-          currentDate = d.detail;
+        if (!$isDateLast) {
+            currentDate = d.detail;
             $dataForm.dateFrom = currentDate;
-              if ($firstCell.month >= $activetedCell.month && $firstCell.date >= $activetedCell.date) {
+            lastSelected = d.detail;
+            $dataForm.dateTo = lastSelected;
+            return;
+        }
+        if (!$pickDateLast) {
+            currentDate = d.detail;
+            $dataForm.dateFrom = currentDate;
+            if ($firstCell.month >= $activetedCell.month && $firstCell.date >= $activetedCell.date) {
                 lastSelected = currentDate;
                 $dataForm.dateTo = lastSelected;
-              }
-
+            }
         }
         if ($pickDateLast) {
-          lastSelected = d.detail;
-          $dataForm.dateTo = lastSelected;
-
+            lastSelected = d.detail;
+            $dataForm.dateTo = lastSelected;
             if ($firstCell.month >= $activetedCell.month && $firstCell.date >= $activetedCell.date) {
-              currentDate = d.detail;
-              $dataForm.dateFrom = currentDate;
+                currentDate = d.detail;
+                $dataForm.dateFrom = currentDate;
             }
             else if ($firstCell.month > $activetedCell.month) {
-              currentDate = d.detail;
-              $dataForm.dateFrom = currentDate;
+                currentDate = d.detail;
+                $dataForm.dateFrom = currentDate;
             }
         }
     };
 
-    let find;
     let event = new Event("search", {
-      bubbles: true,
-      composed: true,
+        bubbles: true,
+        composed: true,
     });
     event.dataForm = $dataForm;
 
-    let isError = false;
     const onClick = () => {
         $showDatePicker = false;
         if ($dataForm.from === "" || $dataForm.to === "") {
@@ -115,17 +108,17 @@
                 selected={currentDate}
                 selectedLast={lastSelected}
                 isAllowed={date => {
-                    const millisecs = date.getTime();
-                    if (millisecs + 25 * 3600 * 1000 < Date.now()) return false;
-                    return true;
-                }}
+                       const millisecs = date.getTime();
+                       if (millisecs + 25 * 3600 * 1000 < Date.now()) return false;
+                       return true;
+                   }}
         />
     </div>
     <button bind:this={find} class="btn" on:click={onClick}>
         Найти
     </button>
     {#if isError}
-        <div class="error">Заполните все поля!!!</div>
+        <div class="error" transition:fade>Заполните все поля!!!</div>
     {/if}
 </div>
 {#if $isModal}

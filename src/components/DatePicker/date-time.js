@@ -31,6 +31,7 @@ const getMonthStats = (monthIndex, year) => {
     };
 };
 
+export const weekdays = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
 export const getMonthName = index => monthNames[index];
 
 export const getDateRows = (monthIndex, year) => {

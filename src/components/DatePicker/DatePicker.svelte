@@ -1,45 +1,33 @@
 <script>
-    import {createEventDispatcher, getContext, setContext} from "svelte";
+    import { createEventDispatcher, getContext } from "svelte";
     import Calender from "./Calender.svelte";
     import { getMonthName } from "./date-time.js";
-    import calendar from "../../assets/calendar.svg";
     import arrowLeft from "../../assets/arrow-left.svg";
     import arrowRight from "../../assets/arrow-right.svg";
     import separator from "../../assets/separator.svg";
-    import checkbox from "../../assets/checkbox.svg";
-    import { formatedSelected } from "./date-time.js";
     import { fade } from 'svelte/transition';
+    import DateInputElem from "./DateInputElem.svelte";
 
-    const dispatch = createEventDispatcher();
-
-    // props
     export let isAllowed = () => true;
     export let selected = new Date();
     export let selectedLast = new Date();
 
-    // export let isLastDate = false;
-
-    const { isDateLast, activetedCell, firstCell, pickDateLast, showDatePicker } = getContext("isDate")
-    const dataForm = getContext("dataForm")
-
-
-    let activeCell = {
-      date: 0,
-      month: 0,
-    };
-
-
-    // state
     let date, month, year;
-
-    // so that these change with props
+    let activeCell = {
+        date: 0,
+        month: 0,
+    };
     $: {
         date = selected.getDate();
         month = selected.getMonth();
         year = selected.getFullYear();
     }
 
-    // handlers
+    const { isDateLast, activetedCell, firstCell, pickDateLast, showDatePicker } = getContext("isDate")
+    const dataForm = getContext("dataForm")
+
+    const dispatch = createEventDispatcher();
+
     const onFocus = () => {
         $showDatePicker = true;
         $pickDateLast = false;
@@ -64,7 +52,6 @@
     };
 
     const onDateChange = d => {
-        // showDatePicker = false;
         dispatch("datechange", d.detail);
     };
 
@@ -93,21 +80,10 @@
 
 <div class="relative">
     <div class="date-input" >
-        <div class="date-input__elem" class:pickActive={!$pickDateLast && $showDatePicker} on:click={onFocus}>
-            <img src={calendar} />
-            <div class="date-input__text">
-                {formatedSelected(selected.toDateString())}
-            </div>
-        </div>
+        <DateInputElem pickDateLast={!$pickDateLast} onClick={onFocus} selected={selected} />
         {#if $isDateLast}
             <img class="date-input__separator" src={separator} transition:fade />
-            <div class="date-input__elem" class:pickActive={$pickDateLast && $showDatePicker} on:click={onClickTwoDate}>
-                <img src={calendar} transition:fade />
-                <div class="date-input__text" transition:fade>
-                    {formatedSelected(selectedLast.toDateString())}
-                </div>
-            </div>
-
+            <DateInputElem pickDateLast={$pickDateLast} onClick={onClickTwoDate} selected={selectedLast} />
         {/if}
     </div>
     {#if $showDatePicker}
@@ -180,42 +156,14 @@
         background-color: #E0E0E0;
         display: flex;
     }
-
-    .date-input__elem {
-        display: flex;
-        padding: 15px 44px;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: box-shadow 0.3s;
-    }
-    .date-input__elem:hover {
-        box-shadow: inset 0px 0px 30px rgba(238, 176, 60, 0.8);
-    }
     .date-input__separator {
-        margin-left: 50px;
-        margin-right: 50px;
+        margin-left: 6px;
+        margin-right: 6px;
     }
     :active, :hover, :focus {
         outline: 0;
         outline-offset: 0;
     }
-    .date-input__text {
-        font-family: Roboto;
-        font-size: 14px;
-        font-style: normal;
-        font-weight: 400;
-        line-height: normal;
-
-        border: none;
-        margin: 0 0 0 8px;
-        color: #333;
-
-        white-space: nowrap;
-    }
-    .pickActive {
-        box-shadow: inset 0px 0px 30px rgba(0,0,0,0.5);
-    }
-
 
     .calendar-container {
         position: absolute;
